@@ -1,5 +1,10 @@
 <template>
   <v-app>
+    <v-overlay :absolute="absolute" :value="!active">
+      <v-btn @click="start" color="primary" x-large>
+        Let's chat <v-icon>mdi-chat</v-icon>
+      </v-btn>
+    </v-overlay>
     <v-app-bar app color="primary" dark></v-app-bar>
     <v-content>
       <v-container>
@@ -8,7 +13,7 @@
           <v-col cols="12" md="12">
             <v-textarea
               filled
-              name="input-7-1"
+              name="input"
               label="Type your message"
               v-model="input"
               no-resize
@@ -18,11 +23,6 @@
               v-on:keyup.enter.exact="send()"
             ></v-textarea>
           </v-col>
-          <v-flex class="pa-3" v-if="!active">
-            <v-btn @click="start" x-large color="primary" class="mr-2">
-              Let's chat
-            </v-btn>
-          </v-flex>
         </v-row>
       </v-container>
     </v-content>
@@ -105,7 +105,7 @@ export default {
     },
     botSend() {
       if (!this.messages[this.next]) {
-        this.end();
+        //this.end();
         return;
       }
 
@@ -148,7 +148,6 @@ export default {
   left: 0;
   right: 0;
   padding: 10px;
-  z-index: 100;
   background: #ffffff;
 }
 </style>
