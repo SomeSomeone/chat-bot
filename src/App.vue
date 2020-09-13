@@ -1,14 +1,15 @@
 <template>
   <v-app>
-    <v-overlay absolute :value="!active">
-      <v-btn @click="start" color="primary" x-large>
-        Let's chat <v-icon>mdi-chat</v-icon>
-      </v-btn>
-    </v-overlay>
-    <v-app-bar app color="primary" dark></v-app-bar>
+    <v-app-bar app color="primary" dark>
+      <v-spacer></v-spacer>
+      <SettingsDialog :settings.sync="settings"></SettingsDialog
+    ></v-app-bar>
     <v-content>
       <v-container>
-        <DialogContainer :history="history"></DialogContainer>
+        <DialogContainer
+          :history="history"
+          :settings="settings"
+        ></DialogContainer>
         <v-row class="textarea-container">
           <v-col cols="12" md="12">
             <v-textarea
@@ -17,11 +18,30 @@
               label="Type your message"
               v-model="input"
               no-resize
-              append-icon="mdi-send"
+              :append-icon="settings.icon && 'mdi-send'"
               :disabled="!active"
               v-on:click:append="send()"
-              v-on:keyup.enter.exact="send()"
+              v-on:keyup.enter.exact="settings.enter && send()"
             ></v-textarea>
+            <v-overlay absolute :value="!active" v-if="settings.icon">
+              <v-btn @click="start" color="primary" x-large>
+                Let's chat <v-icon right>mdi-chat</v-icon>
+              </v-btn>
+            </v-overlay>
+            <template v-else>
+              <v-btn
+                @click="start"
+                v-if="!active"
+                color="primary"
+                x-large
+                block
+              >
+                Let's chat <v-icon right>mdi-chat</v-icon>
+              </v-btn>
+              <v-btn @click="send" v-else color="primary" x-large block>
+                Send Message <v-icon right>mdi-send</v-icon>
+              </v-btn>
+            </template>
           </v-col>
         </v-row>
       </v-container>
@@ -31,12 +51,14 @@
 
 <script>
 import DialogContainer from "@/components/DialogContainer";
+import SettingsDialog from "@/components/SettingsDialog";
 import axios from "axios";
 export default {
   name: "App",
 
   components: {
     DialogContainer,
+    SettingsDialog,
   },
 
   data: () => ({
@@ -46,6 +68,12 @@ export default {
     messages: [],
     history: [],
     userData: {},
+    settings: {
+      enter: true,
+      sound: true,
+      widgets: false,
+      theme: "light",
+    },
   }),
   methods: {
     send() {
@@ -116,11 +144,16 @@ export default {
         this.botSend();
       }
     },
-    end() {
-      this.active = false;
+    getSetting() {
+      this.settings = {
+        ...this.settings,
+        ...JSON.parse(localStorage.getItem("settings") || "{}"),
+      };
     },
   },
-  mounted() {},
+  mounted() {
+    this.getSetting();
+  },
 };
 </script>
 

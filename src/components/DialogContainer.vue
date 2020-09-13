@@ -3,14 +3,14 @@
     <ul class="dialog px-3" ref="dialog">
       <li
         v-for="(message, index) in historyForRender"
-        :class="message.owner"
+        :class="{ [message.owner]: true, primary: message.owner === 'me' }"
         v-bind:key="index"
       >
         <vue-typed-js
           v-if="!message.finish"
           :strings="[message.text]"
           @onComplete="message.finish = true"
-          :typeSpeed="35"
+          :typeSpeed="45"
         >
           <span class="typing"></span>
         </vue-typed-js>
@@ -32,6 +32,12 @@ export default {
         return [];
       },
     },
+    settings: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
   },
   computed: {
     historyForRender() {
@@ -39,6 +45,7 @@ export default {
       if (lastNotFinish === -1) {
         return this.history;
       } else {
+        this.playSound();
         return this.history.slice(0, lastNotFinish + 1);
       }
     },
@@ -49,6 +56,12 @@ export default {
         let el = this.$refs.dialog;
         el.scrollTop = el.scrollHeight - el.clientHeight;
       });
+    },
+    playSound() {
+      if (this.settings.sound) {
+        let audio = new Audio("just-maybe.mp3");
+        audio.play();
+      }
     },
   },
   watch: {
@@ -89,7 +102,6 @@ export default {
 
   .me {
     float: right;
-    background: #0084ff;
     color: #fff;
     & + .me {
       border-top-right-radius: 5px;
