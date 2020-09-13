@@ -13,6 +13,7 @@
         <TextareaContainer
           :settings="settings"
           :loading="loading"
+          :disabled="disabled"
           v-on:send="send"
           v-on:start="start"
         ></TextareaContainer>
@@ -41,6 +42,7 @@ export default {
     history: [],
     userData: {},
     loading: false,
+    disabled: false,
     settings: {
       enter: true,
       sound: true,
@@ -63,6 +65,7 @@ export default {
     },
     botSend() {
       if (!this.messages[this.next]) {
+        this.disabled = true;
         return;
       }
 

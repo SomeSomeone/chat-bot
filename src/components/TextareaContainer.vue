@@ -8,7 +8,7 @@
         v-model="input"
         no-resize
         :append-icon="settings.icon ? 'mdi-send' : undefined"
-        :disabled="!active"
+        :disabled="!active || disabled"
         v-on:click:append="send()"
         v-on:keyup.enter.exact="settings.enter && send()"
         :loading="settings.icon && loading"
@@ -29,6 +29,7 @@
           x-large
           block
           :loading="loading"
+          :disabled="disabled"
         >
           Send Message <v-icon right>mdi-send</v-icon>
         </v-btn>
@@ -48,6 +49,12 @@ export default {
       },
     },
     loading: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
+    disabled: {
       type: Boolean,
       default() {
         return false;
