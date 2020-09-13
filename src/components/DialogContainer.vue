@@ -2,11 +2,21 @@
   <v-row>
     <ul class="dialog px-3" ref="dialog">
       <li
-        v-for="(message, index) in history"
-        v-bind:key="index"
+        v-for="(message, index) in historyForRender"
         :class="message.owner"
+        v-bind:key="index"
       >
-        {{ message.text }}
+        <vue-typed-js
+          v-if="!message.finish"
+          :strings="[message.text]"
+          @onComplete="message.finish = true"
+          :typeSpeed="35"
+        >
+          <span class="typing"></span>
+        </vue-typed-js>
+        <span v-else>
+          {{ message.text }}
+        </span>
       </li>
     </ul>
   </v-row>
@@ -23,12 +33,27 @@ export default {
       },
     },
   },
-  watch: {
-    history() {
+  computed: {
+    historyForRender() {
+      let lastNotFinish = this.history.findIndex((i) => !i.finish);
+      if (lastNotFinish === -1) {
+        return this.history;
+      } else {
+        return this.history.slice(0, lastNotFinish + 1);
+      }
+    },
+  },
+  methods: {
+    scroll() {
       this.$nextTick(() => {
         let el = this.$refs.dialog;
         el.scrollTop = el.scrollHeight - el.clientHeight;
       });
+    },
+  },
+  watch: {
+    historyForRender() {
+      this.scroll();
     },
   },
 };
@@ -36,16 +61,16 @@ export default {
 
 <style lang="scss" scoped>
 .dialog {
+  scroll-behavior: smooth;
   list-style: none;
   margin: 0;
-  padding: 0;
   position: absolute;
   left: 0;
   right: 0;
   overflow-y: scroll;
   height: 600px;
   z-index: 0;
-  padding-bottom: 100px;
+  padding: 0 0 100px;
   li {
     display: inline-block;
     clear: both;

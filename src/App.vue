@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-overlay :absolute="absolute" :value="!active">
+    <v-overlay absolute :value="!active">
       <v-btn @click="start" color="primary" x-large>
         Let's chat <v-icon>mdi-chat</v-icon>
       </v-btn>
@@ -99,6 +99,7 @@ export default {
       this.addMessageToHistory({
         text: this.input,
         owner: "me",
+        finish: true,
       });
       this.input = "";
       this.botSend();
@@ -124,7 +125,7 @@ export default {
       }
     },
     addMessageToHistory(message = {}) {
-      this.history.push(message);
+      this.history.push({ finish: false, ...message });
     },
     start() {
       this.active = true;
