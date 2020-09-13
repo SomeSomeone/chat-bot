@@ -13,13 +13,13 @@
     </v-app-bar>
 
     <v-content>
-      <v-container fluid>
+      <v-container >
         <v-row>
-          <ul>
-            <li v-for="(message, index) in messages.slice(0, next)" v-bind:key="index" :class="message.owner">{{message.text}}</li>
+          <ul class="dialog" ref="dialog">
+            <li v-for="(message, index) in history" v-bind:key="index" :class="message.owner">{{message.text}}</li>
           </ul>
         </v-row>
-        <v-row :style="{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px', zIndex: 100, background: '#ffffff'}">
+        <v-row class="textarea-container">
           <v-col cols="12" md="12">
             <v-textarea
                     filled
@@ -28,11 +28,11 @@
                     v-model="input"
             ></v-textarea>
           </v-col>
-          <v-col cols="12" md="12">
-            <div class="my-2">
-              <v-btn @click="send" x-large :style="{position: 'absolute', bottom: 0, right: 0, background: '#56c8d8'}" color="primary" dark>Send Message</v-btn>
-            </div>
-          </v-col>
+          <v-flex class="pa-3">
+              <v-btn @click="send" x-large color="primary" class="mr-2" :disabled="!active">Send Message</v-btn>
+              <v-btn @click="start" x-large color="primary" class="mr-2" :disabled="active">Start</v-btn>
+              <v-btn @click="end" x-large color="primary" class="mr-2" :disabled="!active">End</v-btn>
+          </v-flex>
         </v-row>
       </v-container>
     </v-content>
@@ -49,83 +49,106 @@ export default {
   },
 
   data: () => ({
-    name: '',
-    age: 0,
-    location: '',
-    feeling: '',
-    hobby: '',
     next: 0,
     input: '',
-    toChat: [],
+    active: false,
     messages: [
       {
         text: "Hi, I'm Peter!",
-        owner: 'him'
       },
       {
         text: "What's your name?",
         ask: "name",
-        owner: 'him'
       },
       {
         text: "Nice to meet you!",
-        owner: 'him'
       },
       {
         text: "How was your day?",
         ask: "feeling",
-        owner: 'him'
       },
       {
         text: "Where're you from?",
         ask: "location",
-        owner: 'him'
       },
       {
         text: "Nice!",
-        owner: 'him'
       },
       {
         text: "How old are you?",
         ask: "age",
-        owner: 'him'
       },
       {
         text: "What's your favorite hobby?",
         ask: "hobby",
-        owner: 'him'
       },
       {
         text: "Wow, cool",
       }
-    ]
+    ],
+    history:[],
+    userData:{},
   }),
   methods: {
     send() {
-      let active = true
-      while(active) {
-
-        if (typeof this.messages[this.next].ask === 'undefined') {
-          this.next += 1;
-        } else {
-          this.next += 1;
-          if (this.messages[this.next].ask === 'name') {
-            this.name = this.input
-            this.messages.splice(this.next, 0,{
-              text: this.input,
-              owner: 'me'
-            })
-          }
-          active = false;
-        }
+      if(!this.input){
+        return
       }
+      let currentBotMessage=this.messages[this.next-1]
+      if(currentBotMessage.ask){
+        this.userData[currentBotMessage.ask]=this.input
+      }
+      this.addMessageToHistory({
+        text: this.input,
+        owner: "me"
+      })
+      this.input=""
+      this.botSend()
+    },
+    botSend(){
+      if(!this.messages[this.next]){
+        this.end()
+        return
+      }
+      this.addMessageToHistory({
+        owner: "him",
+        ...this.messages[this.next]
+      })
+
+      this.next++
+      if(!this.messages[this.next-1].ask){
+        this.botSend();
+      }
+    },
+    scrollToBottom(){
+      this.$nextTick(()=>{
+        let el = this.$refs.dialog
+        el.scrollTop = el.scrollHeight - el.clientHeight;
+      })
+    },
+    addMessageToHistory(message={}){
+      this.history.push(message)
+      this.scrollToBottom()
+    },
+    start(){
+      this.active=true
+      this.next=0
+      this.history=[]
+      this.userData={}
+      this.botSend()
+    },
+    end(){
+      this.active=false
     }
+  },
+  mounted() {
+
   }
 };
 </script>
 
-<style>
-  ul{
+<style lang="scss">
+  .dialog{
     list-style: none;
     margin: 0;
     padding: 0;
@@ -136,38 +159,46 @@ export default {
     height:600px;
     z-index: 0;
     padding-bottom: 100px;
+    li{
+      display:inline-block;
+      clear: both;
+      padding: 20px;
+      border-radius: 30px;
+      margin-bottom: 2px;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+    .him{
+      background: #eee;
+      float: left;
+      & + .me{
+        border-bottom-right-radius: 5px;
+      }
+    }
+
+    .me{
+      float: right;
+      background: #0084ff;
+      color: #fff;
+      &  + .me{
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      &:last-of-type {
+        border-bottom-right-radius: 30px;
+      }
+    }
+  }
+  .textarea-container{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    z-index: 100;
+    background: #ffffff;
   }
 
-  ul li{
-    display:inline-block;
-    clear: both;
-    padding: 20px;
-    border-radius: 30px;
-    margin-bottom: 2px;
-    font-family: Helvetica, Arial, sans-serif;
-  }
 
-  .him{
-    background: #eee;
-    float: left;
-  }
 
-  .me{
-    float: right;
-    background: #0084ff;
-    color: #fff;
-  }
 
-  .him + .me{
-    border-bottom-right-radius: 5px;
-  }
-
-  .me + .me{
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-
-  .me:last-of-type {
-    border-bottom-right-radius: 30px;
-  }
 </style>
