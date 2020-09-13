@@ -31,6 +31,7 @@
 
 <script>
 import DialogContainer from "@/components/DialogContainer";
+import axios from "axios";
 export default {
   name: "App",
 
@@ -42,48 +43,7 @@ export default {
     next: 0,
     input: "",
     active: false,
-    messages: [
-      {
-        text: "Hi, I'm Peter!",
-      },
-      {
-        text: "What's your name?",
-        ask: "name",
-      },
-      {
-        text: "Nice to meet you!",
-      },
-      {
-        text: "How was your day?",
-        ask: "feeling",
-      },
-      {
-        text: "Where're you from?",
-        ask: "location",
-      },
-      {
-        text: "Nice!",
-      },
-      {
-        text: "How old are you?",
-        ask: "age",
-      },
-      {
-        text: "What's your favorite hobby?",
-        ask: "hobby",
-      },
-      {
-        text: "Wow, cool",
-      },
-      {
-        text: (userData) =>
-          `Your name is ${userData.name}.
-           Your day is ${userData.feeling}.
-           Your from ${userData.location}.
-           You are ${userData.age} old.
-           Your favorite hobby is ${userData.hobby}`,
-      },
-    ],
+    messages: [],
     history: [],
     userData: {},
   }),
@@ -132,7 +92,29 @@ export default {
       this.next = 0;
       this.history = [];
       this.userData = {};
-      this.botSend();
+      if (!this.messages.length) {
+        axios
+          .get("messages.json")
+          .then((e) => {
+            this.messages = JSON.parse(e.request.response, function (
+              key,
+              value
+            ) {
+              if (
+                typeof value === "string" &&
+                value.startsWith("/Function(") &&
+                value.endsWith(")/")
+              ) {
+                value = value.substring(10, value.length - 2);
+                return (0, eval)("(" + value + ")");
+              }
+              return value;
+            });
+          })
+          .then(() => this.botSend());
+      } else {
+        this.botSend();
+      }
     },
     end() {
       this.active = false;
