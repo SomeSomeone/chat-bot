@@ -10,40 +10,12 @@
           :history="history"
           :settings="settings"
         ></DialogContainer>
-        <v-row class="textarea-container">
-          <v-col cols="12" md="12">
-            <v-textarea
-              filled
-              name="input"
-              label="Type your message"
-              v-model="input"
-              no-resize
-              :append-icon="settings.icon && 'mdi-send'"
-              :disabled="!active"
-              v-on:click:append="send()"
-              v-on:keyup.enter.exact="settings.enter && send()"
-            ></v-textarea>
-            <v-overlay absolute :value="!active" v-if="settings.icon">
-              <v-btn @click="start" color="primary" x-large>
-                Let's chat <v-icon right>mdi-chat</v-icon>
-              </v-btn>
-            </v-overlay>
-            <template v-else>
-              <v-btn
-                @click="start"
-                v-if="!active"
-                color="primary"
-                x-large
-                block
-              >
-                Let's chat <v-icon right>mdi-chat</v-icon>
-              </v-btn>
-              <v-btn @click="send" v-else color="primary" x-large block>
-                Send Message <v-icon right>mdi-send</v-icon>
-              </v-btn>
-            </template>
-          </v-col>
-        </v-row>
+        <TextareaContainer
+          :settings="settings"
+          :loading="loading"
+          v-on:send="send"
+          v-on:start="start"
+        ></TextareaContainer>
       </v-container>
     </v-content>
   </v-app>
@@ -52,6 +24,7 @@
 <script>
 import DialogContainer from "@/components/DialogContainer";
 import SettingsDialog from "@/components/SettingsDialog";
+import TextareaContainer from "@/components/TextareaContainer";
 import axios from "axios";
 export default {
   name: "App",
@@ -59,15 +32,15 @@ export default {
   components: {
     DialogContainer,
     SettingsDialog,
+    TextareaContainer,
   },
 
   data: () => ({
     next: 0,
-    input: "",
-    active: false,
     messages: [],
     history: [],
     userData: {},
+    loading: false,
     settings: {
       enter: true,
       sound: true,
@@ -76,25 +49,20 @@ export default {
     },
   }),
   methods: {
-    send() {
-      if (!this.input) {
-        return;
-      }
+    send(input) {
       let currentBotMessage = this.messages[this.next - 1];
       if (currentBotMessage.ask) {
-        this.userData[currentBotMessage.ask] = this.input;
+        this.userData[currentBotMessage.ask] = input;
       }
       this.addMessageToHistory({
-        text: this.input,
+        text: input,
         owner: "me",
         finish: true,
       });
-      this.input = "";
       this.botSend();
     },
     botSend() {
       if (!this.messages[this.next]) {
-        //this.end();
         return;
       }
 
@@ -116,11 +84,11 @@ export default {
       this.history.push({ finish: false, ...message });
     },
     start() {
-      this.active = true;
       this.next = 0;
       this.history = [];
       this.userData = {};
       if (!this.messages.length) {
+        this.loading = true;
         axios
           .get("messages.json")
           .then((e) => {
@@ -139,7 +107,8 @@ export default {
               return value;
             });
           })
-          .then(() => this.botSend());
+          .then(() => this.botSend())
+          .finally(() => (this.loading = false));
       } else {
         this.botSend();
       }
@@ -149,6 +118,13 @@ export default {
         ...this.settings,
         ...JSON.parse(localStorage.getItem("settings") || "{}"),
       };
+      if (this.settings.theme) {
+        let theme = this.themes.find((i) => i.name === this.settings.theme);
+        if (theme) {
+          this.$vuetify.theme.themes.light.primary = theme.primary;
+          this.$vuetify.theme.themes.light.secondary = theme.secondary;
+        }
+      }
     },
   },
   mounted() {
@@ -157,13 +133,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.textarea-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px;
-  background: #ffffff;
-}
-</style>
+<style lang="scss"></style>

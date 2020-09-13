@@ -58,7 +58,7 @@
       <v-divider></v-divider>
       <v-list three-line subheader>
         <v-subheader>Color scheme</v-subheader>
-        <v-list-item>
+        <v-list-item class="px-2">
           <v-list-item-content>
             <template v-for="(theme, index) in themes">
               <input
