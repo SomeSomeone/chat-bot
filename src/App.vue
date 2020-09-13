@@ -1,8 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-spacer></v-spacer>
-    </v-app-bar>
+    <v-app-bar app color="primary" dark></v-app-bar>
     <v-content>
       <v-container>
         <DialogContainer :history="history"></DialogContainer>
@@ -13,33 +11,17 @@
               name="input-7-1"
               label="Type your message"
               v-model="input"
+              no-resize
+              append-icon="mdi-send"
+              :disabled="!active"
+              v-on:click:append="send()"
+              v-on:keyup.enter.exact="send()"
             ></v-textarea>
           </v-col>
-          <v-flex class="pa-3">
-            <v-btn
-              @click="send"
-              x-large
-              color="primary"
-              class="mr-2"
-              :disabled="!active"
-              >Send Message</v-btn
-            >
-            <v-btn
-              @click="start"
-              x-large
-              color="primary"
-              class="mr-2"
-              :disabled="active"
-              >Let's chat</v-btn
-            >
-            <v-btn
-              @click="end"
-              x-large
-              color="primary"
-              class="mr-2"
-              :disabled="!active"
-              >End</v-btn
-            >
+          <v-flex class="pa-3" v-if="!active">
+            <v-btn @click="start" x-large color="primary" class="mr-2">
+              Let's chat
+            </v-btn>
           </v-flex>
         </v-row>
       </v-container>
@@ -93,6 +75,14 @@ export default {
       {
         text: "Wow, cool",
       },
+      {
+        text: (userData) =>
+          `Your name is ${userData.name}.
+           Your day is ${userData.feeling}.
+           Your from ${userData.location}.
+           You are ${userData.age} old.
+           Your favorite hobby is ${userData.hobby}`,
+      },
     ],
     history: [],
     userData: {},
@@ -118,10 +108,15 @@ export default {
         this.end();
         return;
       }
-      this.addMessageToHistory({
+
+      let message = {
         owner: "him",
         ...this.messages[this.next],
-      });
+      };
+      if (typeof message.text === "function") {
+        message.text = message.text(this.userData);
+      }
+      this.addMessageToHistory(message);
 
       this.next++;
       if (!this.messages[this.next - 1].ask) {
