@@ -1,0 +1,37 @@
+[
+  {
+    "text":"Hi, I'm Peter!"
+  },
+  {
+    "text":"What's your name?",
+    "ask":"name"
+  },
+  {
+    "text": "/Function( function(userData){ return `Nice to meet you, ${userData.name}! `})/"
+  },
+  {
+    "text":"How was your day?",
+    "ask":"feeling"
+  },
+  {
+    "text":"Where're you from?",
+    "ask":"location"
+  },
+  {
+    "text":"Nice!"
+  },
+  {
+    "text":"How old are you?",
+    "ask":"age"
+  },
+  {
+    "text":"What's your favorite hobby?",
+    "ask":"hobby"
+  },
+  {
+    "text":"Wow, cool"
+  },
+  {
+    "text":"/Function( function(userData){ return `Your name is ${userData.name}. Your day is ${userData.feeling}. Your from ${userData.location}. You are ${userData.age} old. Your favorite hobby is ${userData.hobby}`})/"
+  }
+]
