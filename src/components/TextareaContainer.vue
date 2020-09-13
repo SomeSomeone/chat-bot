@@ -77,10 +77,13 @@ export default {
 <style scoped>
 .textarea-container {
   position: absolute;
+  width: 100%;
+  box-sizing: border-box;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 10px;
   background: #ffffff;
+  margin: 0;
 }
 </style>

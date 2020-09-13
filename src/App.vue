@@ -118,17 +118,7 @@ export default {
         ...this.settings,
         ...JSON.parse(localStorage.getItem("settings") || "{}"),
       };
-      let themes = Object.entries(this.$vuetify.theme.defaults).map((i) => ({
-        name: i[0],
-        ...i[1],
-      }));
-      if (this.settings.theme) {
-        let theme = themes.find((i) => i.name === this.settings.theme);
-        if (theme) {
-          this.$vuetify.theme.themes.light.primary = theme.primary;
-          this.$vuetify.theme.themes.light.secondary = theme.secondary;
-        }
-      }
+      this.setTheme(this.settings.theme);
     },
   },
   mounted() {

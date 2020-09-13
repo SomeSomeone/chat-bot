@@ -7,7 +7,7 @@
     "ask":"name"
   },
   {
-    "text":"Nice to meet you!"
+    "text": "/Function( function(userData){ return `Nice to meet you, ${userData.name}! `})/"
   },
   {
     "text":"How was your day?",
@@ -32,6 +32,6 @@
     "text":"Wow, cool"
   },
   {
-    "text":"/Function( function(userData){\n          return `Your name is ${userData.name}.\n           Your day is ${userData.feeling}.\n           Your from ${userData.location}.\n           You are ${userData.age} old.\n           Your favorite hobby is ${userData.hobby}`\n        })/"
+    "text":"/Function( function(userData){ return `Your name is ${userData.name}. Your day is ${userData.feeling}. Your from ${userData.location}. You are ${userData.age} old. Your favorite hobby is ${userData.hobby}`})/"
   }
 ]

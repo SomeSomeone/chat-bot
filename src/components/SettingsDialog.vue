@@ -109,15 +109,6 @@ export default {
     formSettings() {
       this.settingsForForm = Object.assign({}, this.settings);
     },
-    setTheme(themeName) {
-      if (themeName) {
-        let theme = this.themes.find((i) => i.name === themeName);
-        if (theme) {
-          this.$vuetify.theme.themes.light.primary = theme.primary;
-          this.$vuetify.theme.themes.light.secondary = theme.secondary;
-        }
-      }
-    },
   },
   watch: {
     settings() {
@@ -132,10 +123,7 @@ export default {
     },
   },
   mounted() {
-    this.themes = Object.entries(this.$vuetify.theme.defaults).map((i) => ({
-      name: i[0],
-      ...i[1],
-    }));
+    this.themes = this.getThemes();
   },
 };
 </script>

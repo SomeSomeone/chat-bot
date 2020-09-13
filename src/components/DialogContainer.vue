@@ -82,8 +82,9 @@ export default {
   right: 0;
   overflow-y: scroll;
   height: 600px;
+  max-height: calc(100vh - 360px);
   z-index: 0;
-  padding: 0 0 100px;
+  padding: 0 0 20px;
   li {
     display: inline-block;
     clear: both;
